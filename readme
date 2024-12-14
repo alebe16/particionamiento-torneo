@@ -25,5 +25,8 @@ db.resultados.insertMany([
   { torneoId: 2, jugador: "Ana", puntos: 20 },
   { torneoId: 3, jugador: "Luis", puntos: 10 }
 ]);
+#Verificamos la distribucion de datos
+sh.status()
+
 
 
