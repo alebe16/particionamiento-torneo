@@ -1,0 +1,29 @@
+#Incialmente se debe configurar el particionamiento
+Iniciar servidores MongoDB como nodos de shards// abrimos tres terminales separadas e ingresamos
+mongod --port 27018 --dbpath "C:\MongodbReplication\dataShard1" --shardsvr --replSet shard1
+mongod --port 27019 --dbpath "C:\MongodbReplication\dataShard2" --shardsvr --replSet shard2
+mongod --port 27020 --dbpath "C:\MongodbReplication\dataShard3" --shardsvr --replSet shard3
+*Nos aseguramos de que previamente esten creadas las carpetas correspondientes dentro de la ruta
+#En otra terminal se inicia un config server 
+mongod --port 27021 --dbpath "C:\MongodbReplication\configServer" --configsvr --replSet configRS
+#En otra terminal iniciamos un router para mongos 
+mongos --port 27022 --configdb configRS/localhost:27021
+#Nos conectamos al router 
+mongosh --port 27022
+#Configuramos los shards de manera individual 
+sh.addShard("shard1/localhost:27018")
+sh.addShard("shard2/localhost:27019")
+sh.addShard("shard3/localhost:27020")
+#Habilitamos el sharding en la base de datos 
+sh.enableSharding("torneoPingPong")
+#Definimos la clave de posicionamiento
+sh.shardCollection("torneoPingPong.resultados", { torneoId: "hashed" })
+#Realizamos una prueba inicial de insercion de datos
+use torneoPingPong;
+db.resultados.insertMany([
+  { torneoId: 1, jugador: "Juan", puntos: 15 },
+  { torneoId: 2, jugador: "Ana", puntos: 20 },
+  { torneoId: 3, jugador: "Luis", puntos: 10 }
+]);
+
+
