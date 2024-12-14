@@ -1,0 +1,309 @@
+Windows PowerShell
+Copyright (C) Microsoft Corporation. Todos los derechos reservados.
+
+Instale la versión más reciente de PowerShell para obtener nuevas características y mejoras. https://aka.ms/PSWindows
+
+PS C:\Users\Alejandra Betancourt> mongosh --port 27022
+Current Mongosh Log ID: 675dbbb653bdf17ea1893bf7
+Connecting to:          mongodb://127.0.0.1:27022/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.3.4
+Using MongoDB:          8.0.3
+Using Mongosh:          2.3.4
+mongosh 2.3.6 is available for download: https://www.mongodb.com/try/download/shell
+
+For mongosh info see: https://www.mongodb.com/docs/mongodb-shell/
+
+------
+   The server generated these startup warnings when booting
+   2024-12-14T12:08:53.531-05:00: Access control is not enabled for the database. Read and write access to data and configuration is unrestricted
+   2024-12-14T12:08:53.531-05:00: This server is bound to localhost. Remote systems will be unable to connect to this server. Start the server with --bind_ip <address> to specify which IP addresses it should serve responses from, or with --bind_ip_all to bind to all interfaces. If this behavior is desired, start the server with --bind_ip 127.0.0.1 to disable this warning
+------
+[direct: mongos] test>  sh.addShard("shard1/localhost:27018");
+{
+  shardAdded: 'shard1',
+  ok: 1,
+  '$clusterTime': {
+    clusterTime: Timestamp({ t: 1734196483, i: 13 }),
+    signature: {
+      hash: Binary.createFromBase64('AAAAAAAAAAAAAAAAAAAAAAAAAAA=', 0),
+      keyId: Long('0')
+    }
+  },
+  operationTime: Timestamp({ t: 1734196483, i: 13 })
+}
+[direct: mongos] test>  sh.addShard("shard2/localhost:27019");
+{
+  shardAdded: 'shard2',
+  ok: 1,
+  '$clusterTime': {
+    clusterTime: Timestamp({ t: 1734196905, i: 24 }),
+    signature: {
+      hash: Binary.createFromBase64('AAAAAAAAAAAAAAAAAAAAAAAAAAA=', 0),
+      keyId: Long('0')
+    }
+  },
+  operationTime: Timestamp({ t: 1734196905, i: 18 })
+}
+[direct: mongos] test> sh.addShard("shard3/localhost:27020");
+[direct: mongos] test> sh.addShard("shard3/localhost:27020");
+{
+  shardAdded: 'shard3',
+  ok: 1,
+  '$clusterTime': {
+    clusterTime: Timestamp({ t: 1734197110, i: 18 }),
+    signature: {
+      hash: Binary.createFromBase64('AAAAAAAAAAAAAAAAAAAAAAAAAAA=', 0),
+      keyId: Long('0')
+    }
+  },
+  operationTime: Timestamp({ t: 1734197110, i: 18 })
+}
+[direct: mongos] test> sh.status();
+shardingVersion
+{ _id: 1, clusterId: ObjectId('675dbb3820d41134b5a307fd') }
+---
+shards
+[
+  {
+    _id: 'shard1',
+    host: 'shard1/localhost:27018',
+    state: 1,
+    topologyTime: Timestamp({ t: 1734196483, i: 3 }),
+    replSetConfigVersion: Long('-1')
+  },
+  {
+    _id: 'shard2',
+    host: 'shard2/localhost:27019',
+    state: 1,
+    topologyTime: Timestamp({ t: 1734196905, i: 9 }),
+    replSetConfigVersion: Long('-1')
+  },
+  {
+    _id: 'shard3',
+    host: 'shard3/localhost:27020',
+    state: 1,
+    topologyTime: Timestamp({ t: 1734197110, i: 9 }),
+    replSetConfigVersion: Long('-1')
+  }
+]
+---
+active mongoses
+[ { '8.0.3': 1 } ]
+---
+autosplit
+{ 'Currently enabled': 'yes' }
+---
+balancer
+{
+  'Currently enabled': 'yes',
+  'Currently running': 'no',
+  'Failed balancer rounds in last 5 attempts': 0,
+  'Migration Results for the last 24 hours': 'No recent migrations'
+}
+---
+shardedDataDistribution
+[
+  {
+    ns: 'config.system.sessions',
+    shards: [
+      {
+        shardName: 'shard1',
+        numOrphanedDocs: 0,
+        numOwnedDocuments: 14,
+        ownedSizeBytes: 1386,
+        orphanedSizeBytes: 0
+      }
+    ]
+  }
+]
+---
+databases
+[
+  {
+    database: { _id: 'config', primary: 'config', partitioned: true },
+    collections: {
+      'config.system.sessions': {
+        shardKey: { _id: 1 },
+        unique: false,
+        balancing: true,
+        chunkMetadata: [ { shard: 'shard1', nChunks: 1 } ],
+        chunks: [
+          { min: { _id: MinKey() }, max: { _id: MaxKey() }, 'on shard': 'shard1', 'last modified': Timestamp({ t: 1, i: 0 }) }
+        ],
+        tags: []
+      }
+    }
+  }
+]
+[direct: mongos] test> sh.enableSharding("torneoPingPong")
+{
+  ok: 1,
+  '$clusterTime': {
+    clusterTime: Timestamp({ t: 1734197861, i: 8 }),
+    signature: {
+      hash: Binary.createFromBase64('AAAAAAAAAAAAAAAAAAAAAAAAAAA=', 0),
+      keyId: Long('0')
+    }
+  },
+  operationTime: Timestamp({ t: 1734197861, i: 5 })
+}
+[direct: mongos] test> sh.shardCollection("torneoPingPong.resultados", { torneoId: "hashed" })
+{
+  collectionsharded: 'torneoPingPong.resultados',
+  ok: 1,
+  '$clusterTime': {
+    clusterTime: Timestamp({ t: 1734197882, i: 12 }),
+    signature: {
+      hash: Binary.createFromBase64('AAAAAAAAAAAAAAAAAAAAAAAAAAA=', 0),
+      keyId: Long('0')
+    }
+  },
+  operationTime: Timestamp({ t: 1734197882, i: 12 })
+}
+[direct: mongos] test> use torneoPingPong;
+switched to db torneoPingPong
+[direct: mongos] torneoPingPong> db.resultados.insertMany([
+...   { torneoId: 1, jugador: "Juan", puntos: 15 },
+...   { torneoId: 2, jugador: "Ana", puntos: 20 },
+...   { torneoId: 3, jugador: "Luis", puntos: 10 }
+... ]);
+{
+  acknowledged: true,
+  insertedIds: {
+    '0': ObjectId('675dc37253bdf17ea1893bf8'),
+    '1': ObjectId('675dc37253bdf17ea1893bf9'),
+    '2': ObjectId('675dc37253bdf17ea1893bfa')
+  }
+}
+[direct: mongos] torneoPingPong> sh.status()
+shardingVersion
+{ _id: 1, clusterId: ObjectId('675dbb3820d41134b5a307fd') }
+---
+shards
+[
+  {
+    _id: 'shard1',
+    host: 'shard1/localhost:27018',
+    state: 1,
+    topologyTime: Timestamp({ t: 1734196483, i: 3 }),
+    replSetConfigVersion: Long('-1')
+  },
+  {
+    _id: 'shard2',
+    host: 'shard2/localhost:27019',
+    state: 1,
+    topologyTime: Timestamp({ t: 1734196905, i: 9 }),
+    replSetConfigVersion: Long('-1')
+  },
+  {
+    _id: 'shard3',
+    host: 'shard3/localhost:27020',
+    state: 1,
+    topologyTime: Timestamp({ t: 1734197110, i: 9 }),
+    replSetConfigVersion: Long('-1')
+  }
+]
+---
+active mongoses
+[ { '8.0.3': 1 } ]
+---
+autosplit
+{ 'Currently enabled': 'yes' }
+---
+balancer
+{
+  'Currently running': 'no',
+  'Currently enabled': 'yes',
+  'Failed balancer rounds in last 5 attempts': 0,
+  'Migration Results for the last 24 hours': 'No recent migrations'
+}
+---
+shardedDataDistribution
+[
+  {
+    ns: 'config.system.sessions',
+    shards: [
+      {
+        shardName: 'shard1',
+        numOrphanedDocs: 0,
+        numOwnedDocuments: 18,
+        ownedSizeBytes: 1782,
+        orphanedSizeBytes: 0
+      }
+    ]
+  },
+  {
+    ns: 'torneoPingPong.resultados',
+    shards: [
+      {
+        shardName: 'shard1',
+        numOrphanedDocs: 0,
+        numOwnedDocuments: 2,
+        ownedSizeBytes: 130,
+        orphanedSizeBytes: 0
+      },
+      {
+        shardName: 'shard2',
+        numOrphanedDocs: 0,
+        numOwnedDocuments: 1,
+        ownedSizeBytes: 66,
+        orphanedSizeBytes: 0
+      },
+      {
+        shardName: 'shard3',
+        numOrphanedDocs: 0,
+        numOwnedDocuments: 0,
+        ownedSizeBytes: 0,
+        orphanedSizeBytes: 0
+      }
+    ]
+  }
+]
+---
+databases
+[
+  {
+    database: { _id: 'config', primary: 'config', partitioned: true },
+    collections: {
+      'config.system.sessions': {
+        shardKey: { _id: 1 },
+        unique: false,
+        balancing: true,
+        chunkMetadata: [ { shard: 'shard1', nChunks: 1 } ],
+        chunks: [
+          { min: { _id: MinKey() }, max: { _id: MaxKey() }, 'on shard': 'shard1', 'last modified': Timestamp({ t: 1, i: 0 }) }
+        ],
+        tags: []
+      }
+    }
+  },
+  {
+    database: {
+      _id: 'torneoPingPong',
+      primary: 'shard3',
+      version: {
+        uuid: UUID('3de953b1-e6f7-427e-b4a8-698e36c46b89'),
+        timestamp: Timestamp({ t: 1734197861, i: 2 }),
+        lastMod: 1
+      }
+    },
+    collections: {
+      'torneoPingPong.resultados': {
+        shardKey: { torneoId: 'hashed' },
+        unique: false,
+        balancing: true,
+        chunkMetadata: [
+          { shard: 'shard1', nChunks: 1 },
+          { shard: 'shard2', nChunks: 1 },
+          { shard: 'shard3', nChunks: 1 }
+        ],
+        chunks: [
+          { min: { torneoId: MinKey() }, max: { torneoId: Long('-3074457345618258602') }, 'on shard': 'shard3', 'last modified': Timestamp({ t: 1, i: 0 }) },
+          { min: { torneoId: Long('-3074457345618258602') }, max: { torneoId: Long('3074457345618258602') }, 'on shard': 'shard1', 'last modified': Timestamp({ t: 1, i: 1 }) },
+          { min: { torneoId: Long('3074457345618258602') }, max: { torneoId: MaxKey() }, 'on shard': 'shard2', 'last modified': Timestamp({ t: 1, i: 2 }) }
+        ],
+        tags: []
+      }
+    }
+  }
+]
+[direct: mongos] torneoPingPong>
