@@ -1,0 +1,15 @@
+*Prueba 1-// Validar la distribucion de datos*
+##Inicialmente se debe habilitar el Sharding en la Base de Datos
+sh.enableSharding("testDB");
+#Configuramos la clave de particion 
+sh.shardCollection("testDB.testCollection", { key: 1 });
+#Probamos insertar datos en la coleccion 
+use testDB;
+for (let i = 0; i < 1000; i++) {
+    db.testCollection.insert({ key: i, value: `Value ${i}` });
+}
+##Verificamos la distribucion de datos 
+sh.status();
+
+*Prueba 2-//Validar enrutamiento dde consultas*
+##
