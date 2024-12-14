@@ -11,5 +11,9 @@ for (let i = 0; i < 1000; i++) {
 ##Verificamos la distribucion de datos 
 sh.status();
 
-*Prueba 2-//Validar enrutamiento dde consultas*
-##
+*Prueba 2-//Validar la escalabilidad*
+##Insertar una gran cantidad de documentos para simular una alta carga
+for (let i = 1000; i < 10000; i++) {
+    db.testCollection.insert({ key: i, value: `Value ${i}` });
+}
+
