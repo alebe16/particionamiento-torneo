@@ -1,0 +1,189 @@
+[direct: mongos] testDB> for (let i = 1000; i < 10000; i++) {
+...     db.testCollection.insert({ key: i, value: `Value ${i}` });
+... }
+
+{
+  acknowledged: true,
+  insertedIds: { '0': ObjectId('675dfb8253bdf17ea189630a') }
+}
+[direct: mongos] testDB>
+
+[direct: mongos] testDB> sh.status();
+shardingVersion
+{ _id: 1, clusterId: ObjectId('675dbb3820d41134b5a307fd') }
+---
+shards
+[
+  {
+    _id: 'shard1',
+    host: 'shard1/localhost:27018',
+    state: 1,
+    topologyTime: Timestamp({ t: 1734196483, i: 3 }),
+    replSetConfigVersion: Long('-1')
+  },
+  {
+    _id: 'shard2',
+    host: 'shard2/localhost:27019',
+    state: 1,
+    topologyTime: Timestamp({ t: 1734196905, i: 9 }),
+    replSetConfigVersion: Long('-1')
+  },
+  {
+    _id: 'shard3',
+    host: 'shard3/localhost:27020',
+    state: 1,
+    topologyTime: Timestamp({ t: 1734197110, i: 9 }),
+    replSetConfigVersion: Long('-1')
+  }
+]
+---
+active mongoses
+[ { '8.0.3': 1 } ]
+---
+autosplit
+{ 'Currently enabled': 'yes' }
+---
+balancer
+{
+  'Currently enabled': 'yes',
+  'Currently running': 'no',
+  'Failed balancer rounds in last 5 attempts': 0,
+  'Migration Results for the last 24 hours': { '2': 'Success' }
+}
+---
+shardedDataDistribution
+[
+  {
+    ns: 'torneoPingPong.resultados',
+    shards: [
+      {
+        shardName: 'shard3',
+        numOrphanedDocs: 0,
+        numOwnedDocuments: 0,
+        ownedSizeBytes: 0,
+        orphanedSizeBytes: 0
+      },
+      {
+        shardName: 'shard2',
+        numOrphanedDocs: 0,
+        numOwnedDocuments: 1,
+        ownedSizeBytes: 66,
+        orphanedSizeBytes: 0
+      },
+      {
+        shardName: 'shard1',
+        numOrphanedDocs: 0,
+        numOwnedDocuments: 2,
+        ownedSizeBytes: 130,
+        orphanedSizeBytes: 0
+      }
+    ]
+  },
+  {
+    ns: 'config.system.sessions',
+    shards: [
+      {
+        shardName: 'shard1',
+        numOrphanedDocs: 0,
+        numOwnedDocuments: 4,
+        ownedSizeBytes: 396,
+        orphanedSizeBytes: 0
+      }
+    ]
+  },
+  {
+    ns: 'testDB.testCollection',
+    shards: [
+      {
+        shardName: 'shard3',
+        numOrphanedDocs: 0,
+        numOwnedDocuments: 9500,
+        ownedSizeBytes: 494000,
+        orphanedSizeBytes: 0
+      },
+      {
+        shardName: 'shard1',
+        numOrphanedDocs: 0,
+        numOwnedDocuments: 500,
+        ownedSizeBytes: 25500,
+        orphanedSizeBytes: 0
+      }
+    ]
+  }
+]
+---
+databases
+[
+  {
+    database: { _id: 'config', primary: 'config', partitioned: true },
+    collections: {
+      'config.system.sessions': {
+        shardKey: { _id: 1 },
+        unique: false,
+        balancing: true,
+        chunkMetadata: [ { shard: 'shard1', nChunks: 1 } ],
+        chunks: [
+          { min: { _id: MinKey() }, max: { _id: MaxKey() }, 'on shard': 'shard1', 'last modified': Timestamp({ t: 1, i: 0 }) }
+        ],
+        tags: []
+      }
+    }
+  },
+  {
+    database: {
+      _id: 'testDB',
+      primary: 'shard2',
+      version: {
+        uuid: UUID('098f7fa2-57d6-40e5-b69f-ce804232a3af'),
+        timestamp: Timestamp({ t: 1734206761, i: 2 }),
+        lastMod: 1
+      }
+    },
+    collections: {
+      'testDB.testCollection': {
+        shardKey: { key: 1 },
+        unique: false,
+        balancing: true,
+        chunkMetadata: [
+          { shard: 'shard1', nChunks: 1 },
+          { shard: 'shard3', nChunks: 1 }
+        ],
+        chunks: [
+          { min: { key: MinKey() }, max: { key: 500 }, 'on shard': 'shard1', 'last modified': Timestamp({ t: 2, i: 0 }) },
+          { min: { key: 500 }, max: { key: MaxKey() }, 'on shard': 'shard3', 'last modified': Timestamp({ t: 3, i: 0 }) }
+        ],
+        tags: []
+      }
+    }
+  },
+  {
+    database: {
+      _id: 'torneoPingPong',
+      primary: 'shard3',
+      version: {
+        uuid: UUID('3de953b1-e6f7-427e-b4a8-698e36c46b89'),
+        timestamp: Timestamp({ t: 1734197861, i: 2 }),
+        lastMod: 1
+      }
+    },
+    collections: {
+      'torneoPingPong.resultados': {
+        shardKey: { torneoId: 'hashed' },
+        unique: false,
+        balancing: true,
+        chunkMetadata: [
+          { shard: 'shard1', nChunks: 1 },
+          { shard: 'shard2', nChunks: 1 },
+          { shard: 'shard3', nChunks: 1 }
+        ],
+        chunks: [
+          { min: { torneoId: MinKey() }, max: { torneoId: Long('-3074457345618258602') }, 'on shard': 'shard3', 'last modified': Timestamp({ t: 1, i: 0 }) },
+          { min: { torneoId: Long('-3074457345618258602') }, max: { torneoId: Long('3074457345618258602') }, 'on shard': 'shard1', 'last modified': Timestamp({ t: 1, i: 1 }) },
+          { min: { torneoId: Long('3074457345618258602') }, max: { torneoId: MaxKey() }, 'on shard': 'shard2', 'last modified': Timestamp({ t: 1, i: 2 }) }
+        ],
+        tags: []
+      }
+    }
+  }
+]
+[direct: mongos] testDB>
